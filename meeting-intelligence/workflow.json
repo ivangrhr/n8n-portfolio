@@ -1,0 +1,339 @@
+{
+  "name": "meeting transcript processor",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Meeting Intelligence Processor",
+        "formDescription": "Paste your meeting transcript below. Get a structured summary, action items, and key decisions — automatically synced to your Notion workspace.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Meeting Title",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Meeting Date",
+              "fieldType": "date",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Attendees",
+              "placeholder": "e.g., Sarah (PM), Ivan (Engineering), Tom (CEO)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Transcript",
+              "placeholder": "Paste the full meeting transcript here...",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Your Email",
+              "fieldType": "email"
+            }
+          ]
+        },
+        "options": {
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Processing your meeting transcript now. You'll receive a summary email within 30 seconds."
+            }
+          },
+          "customCss": ":root {\n\t/* Colors — Clean Light with Purple Accent */\n\t--color-background: #fafafa;\n\t--color-test-notice-text: #b45309;\n\t--color-test-notice-bg: #fef3c7;\n\t--color-test-notice-border: #fde68a;\n\t--color-card-bg: #ffffff;\n\t--color-card-border: #e5e7eb;\n\t--color-card-shadow: rgba(17, 24, 39, 0.08);\n\t--color-link: #6b7280;\n\t--color-header: #111827;\n\t--color-label: #374151;\n\t--color-input-border: #e5e7eb;\n\t--color-input-text: #111827;\n\t--color-focus-border: #6366f1;\n\t--color-submit-btn-bg: #111827;\n\t--color-submit-btn-text: #ffffff;\n\t--color-error: #dc2626;\n\t--color-required: #6366f1;\n\t--color-clear-button-bg: #9ca3af;\n\t--color-html-text: #4b5563;\n\t--color-html-link: #6366f1;\n\t--color-header-subtext: #6b7280;\n}"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7deaa459-936a-4104-8bfd-46ed5f002700",
+      "name": "Meeting Intelligence Processor",
+      "webhookId": "422b36a9-6027-4d1f-ba86-ad0a0a885b0f"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Meeting Title: {{ $json['Meeting Title'] }}\nMeeting Date: {{ $json['Meeting Date'] }}\nAttendees: {{ $json['Attendees'] }}\n\nTranscript:\n{{ $json['Transcript'] }}"
+            },
+            {
+              "role": "system",
+              "content": "You are a meeting intelligence assistant. Analyze the provided meeting transcript and extract structured information.\n\nReturn ONLY a JSON object with this exact structure:\n{\n  \"summary\": \"3-sentence executive summary of the meeting\",\n  \"key_decisions\": [\"Decision 1\", \"Decision 2\"],\n  \"action_items\": [\n    {\n      \"task\": \"Clear, actionable description of what needs to be done\",\n      \"owner\": \"Name of person responsible (extract from transcript; use 'Unassigned' if unclear)\",\n      \"deadline\": \"YYYY-MM-DD format; use empty string '' if not specified\",\n      \"context\": \"One sentence explaining why this action matters\"\n    }\n  ],\n  \"topics_discussed\": [\"Topic 1\", \"Topic 2\", \"Topic 3\"],\n  \"follow_up_needed\": true\n}\n\nGuidelines:\n- Action items must be concrete and assignable, not vague. Bad: \"Discuss pricing\". Good: \"Send updated pricing proposal to ACME by Friday\".\n- If no deadline is mentioned, use empty string \"\" — do not guess.\n- Owners: extract actual names from the transcript; if truly unclear, use \"Unassigned\".\n- Decisions are different from action items — decisions are conclusions reached, action items are things to be done.\n- Be faithful to the transcript — do not invent information.\n- Return between 3 and 10 action items depending on meeting content."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e45abc08-0e65-4a95-8ef4-fd88c2d2d4cd",
+      "name": "Extract Structured Data",
+      "credentials": {
+        "openAiApi": {
+          "id": "booh4SMzNCw7OlGB",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00220a31-20d8-41a7-8560-14f9087d74c6",
+              "name": "meetingTitle",
+              "value": "={{ $('Meeting Intelligence Processor').item.json['Meeting Title'] }}",
+              "type": "string"
+            },
+            {
+              "id": "eeff95fd-b28d-4949-8901-a9c1bebfd303",
+              "name": "meetingDate",
+              "value": "={{ $('Meeting Intelligence Processor').item.json['Meeting Date'] }}",
+              "type": "string"
+            },
+            {
+              "id": "e14cf92e-4bcb-43dd-86fd-b56dd61c3ea2",
+              "name": "attendees",
+              "value": "={{ $('Meeting Intelligence Processor').item.json.Attendees }}",
+              "type": "string"
+            },
+            {
+              "id": "47b75a6c-a14a-4501-ba9a-e1964f012545",
+              "name": "requesterEmail",
+              "value": "={{ $('Meeting Intelligence Processor').item.json['Your Email'] }}",
+              "type": "string"
+            },
+            {
+              "id": "5d0f5ccd-1e83-4cb0-9548-adac96961f21",
+              "name": "summary",
+              "value": "={{ JSON.parse($json.output[0].content[0].text).summary }}",
+              "type": "string"
+            },
+            {
+              "id": "23adc125-1c77-4206-b67a-e15cc2189cf8",
+              "name": "keyDecisions",
+              "value": "={{ JSON.parse($json.output[0].content[0].text).key_decisions.join('\\n• ') }}",
+              "type": "string"
+            },
+            {
+              "id": "d505596d-bd79-45bf-85af-b19ebb3dc1ac",
+              "name": "topicsDiscussed",
+              "value": "={{ JSON.parse($json.output[0].content[0].text).topics_discussed.join(', ') }}",
+              "type": "string"
+            },
+            {
+              "id": "9c116794-42c9-48d7-bf6d-34def2dd611e",
+              "name": "actionItems",
+              "value": "={{ JSON.parse($json.output[0].content[0].text).action_items }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "958302a6-9fc7-4537-8930-6b59f2e8f185",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "actionItems",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -80
+      ],
+      "id": "f0ce1dda-9602-4367-ac7f-96d07e8624c8",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "34a05798-ff76-80e3-a9f5-f5914f2a6c4f",
+          "mode": "list",
+          "cachedResultName": "N8N Database",
+          "cachedResultUrl": "https://www.notion.so/34a05798ff7680e3a9f5f5914f2a6c4f"
+        },
+        "title": "={{ $json.actionItems.task }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Owner|rich_text",
+              "textContent": "={{ $json.actionItems.owner }}"
+            },
+            {
+              "key": "Meating|rich_text",
+              "textContent": "={{ $json.meetingTitle }}"
+            },
+            {
+              "key": "Status|status",
+              "statusValue": "Not started"
+            },
+            {
+              "key": "Deadline|date",
+              "date": "={{ $json.actionItems.deadline || $now.plus({days: 7}).toISODate() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        16
+      ],
+      "id": "6c1ad5e9-5ccc-4e6e-9354-f65572e1f439",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "srmOtdoOlqxWTCUS",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "createdTasks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        16
+      ],
+      "id": "8686c671-1d22-45b7-8553-0b4186943c6f",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').item.json.requesterEmail }}",
+        "subject": "=Meeting Summary: {{ $('Edit Fields').item.json.meetingTitle }}",
+        "message": "=<h1>Meeting Intelligence Report</h1> <p><strong>Meeting:</strong> {{ $('Edit Fields').item.json.meetingTitle }}</p> <p><strong>Date:</strong> {{ $('Edit Fields').item.json.meetingDate }}</p> <p><strong>Attendees:</strong> {{ $('Edit Fields').item.json.attendees }}</p>  <hr>  <h2>Executive Summary</h2> <p>{{ $('Edit Fields').item.json.summary }}</p>  <h2>Key Decisions</h2> <div style=\"background: #f4f4f4; padding: 15px; border-left: 4px solid #6366f1; white-space: pre-wrap;\"> - {{ $('Edit Fields').item.json.keyDecisions }} </div>  <h2>Topics Discussed</h2> <p>{{ $('Edit Fields').item.json.topicsDiscussed }}</p>  <h2>Action Items</h2> <p><strong>{{ $json.createdTasks.length }} tasks</strong> were created in your Notion database:</p> <ul> {{ $json.createdTasks.map(t => `<li><strong>${t.property_task}</strong> — ${t.property_owner} (${t.property_deadline.start.split('T')[0]})</li>`).join('') }} </ul>  <hr> <p style=\"color: #888; font-size: 12px;\">Generated by Meeting Intelligence Pipeline · Built with n8n</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        16
+      ],
+      "id": "99138518-f187-41e6-a6c4-cc9a81d6fc13",
+      "name": "Send a message",
+      "webhookId": "31f388f6-945d-4c8c-b692-bdc8af065eb5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JmysJgsS4CqFvkoE",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Meeting Intelligence Processor": {
+      "main": [
+        [
+          {
+            "node": "Extract Structured Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Structured Data": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4f1cca47-28b2-44e4-b03c-e34ab31a700e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bf95228f16489c0f21d775bd397365f3d91b5eda5adf21b59600e4b44b205f16"
+  },
+  "id": "ikEEoZOH6VOREJhU",
+  "tags": []
+}
