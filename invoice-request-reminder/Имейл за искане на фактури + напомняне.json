@@ -1,0 +1,2923 @@
+{
+  "name": "Имейл за искане на фактури + напомняне",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4",
+          "mode": "list",
+          "cachedResultName": "MV_Clients_DEV",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1888462168,
+          "mode": "list",
+          "cachedResultName": "clients",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit#gid=1888462168"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e3b0523c-5a52-469b-9577-5d172f614435",
+      "name": "Read clients",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bSP4QfRd1cjBLhCa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d4bade08-0b82-4273-8b5c-6bb15dfe801e",
+              "leftValue": "={{ $json.active }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "d94d9ac9-3fc1-425c-9d4f-91a4ef1f36c3",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f6688a21-389f-4d24-9c96-25d34a124d9f",
+              "name": "={{ $json.active }}",
+              "value": "={{ $now.format('yyyy-MM') }}-initial",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "5e62d28e-e2a1-4452-b3e7-5ba40d7f3757",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "989ab6a4-f46a-4151-b2c8-d020eafa3ada",
+              "name": "email_subject",
+              "value": "=Искане за фактури — {{ $now.format('MMMM yyyy') }}",
+              "type": "string"
+            },
+            {
+              "id": "8842aa91-0320-4804-8316-8f44716b9b11",
+              "name": "email_body",
+              "value": "=Здравейте, {{ $('Read clients').item.json.contact_name }},  Моля, изпратете фактурите на {{ $('Read clients').item.json.company_name }} за месец {{ $now.format('MMMM yyyy') }} до 7-мо число на месеца.  Благодаря предварително!  С уважение, Екипът на MV Accounting",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        -96
+      ],
+      "id": "081a08bf-abc8-4882-8eb9-26c9a6149d0f",
+      "name": "BG"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "989ab6a4-f46a-4151-b2c8-d020eafa3ada",
+              "name": "email_subject",
+              "value": "=Invoice request — {{ $now.format('MMMM yyyy') }}",
+              "type": "string"
+            },
+            {
+              "id": "8842aa91-0320-4804-8316-8f44716b9b11",
+              "name": "email_body",
+              "value": "=Hello {{ $('Read clients').item.json.contact_name }},\n\nPlease send over the invoices for  {{ $('Read clients').item.json.company_name }}for {{ $now.format('MMMM yyyy') }} by the 7th of the month.\n\nThank you in advance!\n\nBest regards,\nMV Accounting",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        96
+      ],
+      "id": "d072ec7c-d331-4b76-9e88-894b8a6e0c7a",
+      "name": "EN"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1280,
+        -48
+      ],
+      "id": "12c21b3b-d229-40db-970d-cd2861b629ab",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Read clients').item.json.email }}",
+        "subject": "={{ $json.email_subject }}",
+        "message": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1696,
+        -48
+      ],
+      "id": "eb6a4b2d-6d95-4f1e-a042-6c8c93f92c5e",
+      "name": "Send a message",
+      "webhookId": "84a066b8-4e57-4451-ada1-dcdd2b0d4b74",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JmysJgsS4CqFvkoE",
+          "name": "Gmail OAuth2 API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4",
+          "mode": "list",
+          "cachedResultName": "MV_Clients_DEV",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 988572914,
+          "mode": "list",
+          "cachedResultName": "send_log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit#gid=988572914"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "run_id": "={{ $('Edit Fields').item.json.true }}",
+            "client_id": "={{ $('Filter').item.json.client_id }}",
+            "company_name": "={{ $('Filter').item.json.company_name }}",
+            "email": "={{ $('Filter').item.json.email }}",
+            "language": "={{ $('Filter').item.json.language }}",
+            "initial_draft_created_at": "={{ $now.toISO() }}",
+            "reply_received": "false",
+            "status": "initial_draft_created"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "run_id",
+              "displayName": "run_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "initial_draft_created_at",
+              "displayName": "initial_draft_created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "initial_sent_at",
+              "displayName": "initial_sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reminder_draft_created_at",
+              "displayName": "reminder_draft_created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1872,
+        -48
+      ],
+      "id": "af2d06e9-19b0-4480-90ac-2c14c469612b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bSP4QfRd1cjBLhCa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1488,
+        -48
+      ],
+      "id": "bc69ef73-8325-4964-a59a-dcdd25411b2c",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "client_id",
+              "renameField": true,
+              "outputFieldName": "client_ids"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        -272
+      ],
+      "id": "9a7f60ad-415e-4989-ae1f-1c5fe5ed4f79",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "sendTo": "ivanhistovgr@gmail.com",
+        "subject": "=[MV Automation] Invoice request drafts ready — {{ $now.format('MMMM yyyy') }}",
+        "message": "=Generated {{ $json.client_ids.length }} invoice request drafts in Gmail.  Run ID: {{ $json.client_ids[0] }}  Please review and send from the Drafts folder.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2160,
+        -272
+      ],
+      "id": "353ee8f4-0499-484e-81bb-462ce26ba918",
+      "name": "Send a message1",
+      "webhookId": "c0b7ba7f-bfcd-43aa-bd28-d9f4ee30e7c1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JmysJgsS4CqFvkoE",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## will be outlook\nwould also be great to send it with an html so it looks more presentabl"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1632,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "7723c810-f04d-431d-99e8-217e66b46477",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## will be outlook\nthis can be removed when we now it works",
+        "height": 304,
+        "width": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1936,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "e07c24d7-c435-46d1-997f-b821d53a9efc",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Read clients').item.json.language }}",
+                    "rightValue": "BG",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "849c6c1b-7481-4df7-8ee2-143501af4790"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d13afeda-3d0a-40b3-af25-beaf31106c38",
+                    "leftValue": "={{ $('Read clients').item.json.language }}",
+                    "rightValue": "EN",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        0
+      ],
+      "id": "d9e10609-5aec-4761-b7d4-7b1f6c0f7585",
+      "name": "language path"
+    },
+    {
+      "parameters": {
+        "content": "##  workflow 1A\n",
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -112
+      ],
+      "typeVersion": 1,
+      "id": "7d92633b-c41c-4d88-a043-c84133f1614c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "##  workflow 1b\n",
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        416
+      ],
+      "typeVersion": 1,
+      "id": "c3a28b3d-fd28-4976-a606-4d19325644e2",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 7 * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        544
+      ],
+      "id": "2e1a45fe-2729-4dce-a44e-53aed662dda4",
+      "name": "09:00 on the 7th of every month"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4",
+          "mode": "list",
+          "cachedResultName": "MV_Clients_DEV",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 988572914,
+          "mode": "list",
+          "cachedResultName": "send_log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit#gid=988572914"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "initial_draft_created"
+            },
+            {
+              "lookupColumn": "run_id",
+              "lookupValue": "={{ $now.format('yyyy-MM') }}-initial"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        128,
+        544
+      ],
+      "id": "e60ed09d-3d1f-4ff3-b174-a36bc75a6966",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bSP4QfRd1cjBLhCa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        336,
+        544
+      ],
+      "id": "4c2f39bf-3088-4234-8144-73a2b5dc634b",
+      "name": "loop"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "receivedAfter": "={{ $now.startOf('month').toISO() }}",
+          "sender": "ivanhristovgr@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        880
+      ],
+      "id": "212b7c59-5e0f-4230-beb9-e62672392d2c",
+      "name": "Check reply",
+      "webhookId": "1fd42cd7-f35e-4031-8411-96d47c5aa60e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JmysJgsS4CqFvkoE",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f762b66b-5fd1-419b-9a15-17b5e22ce797",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        736,
+        880
+      ],
+      "id": "47bb9efc-ac56-4e2d-ac3a-67d0d5702229",
+      "name": "Did they reply?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4",
+          "mode": "list",
+          "cachedResultName": "MV_Clients_DEV",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 988572914,
+          "mode": "list",
+          "cachedResultName": "send_log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit#gid=988572914"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "reply_received": "true",
+            "client_id": "={{ $('loop').item.json.client_id }}",
+            "status": "completed_client_replied"
+          },
+          "matchingColumns": [
+            "client_id"
+          ],
+          "schema": [
+            {
+              "id": "run_id",
+              "displayName": "run_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "initial_draft_created_at",
+              "displayName": "initial_draft_created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "initial_sent_at",
+              "displayName": "initial_sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "reminder_draft_created_at",
+              "displayName": "reminder_draft_created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        944,
+        784
+      ],
+      "id": "b78fd309-bff1-4b5e-a03c-01669e1d2641",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bSP4QfRd1cjBLhCa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('loop').item.json.language }}",
+                    "rightValue": "BG",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "bfc6ea09-a202-40dc-a344-c2de0d1780e8"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e186f76f-af33-4af3-a588-317dab5c743f",
+                    "leftValue": "={{ $('loop').item.json.language }}",
+                    "rightValue": "EN",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        944,
+        1008
+      ],
+      "id": "1b03c557-9e59-4808-bfb3-1407061062bd",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d7c46251-5a71-4f2e-8693-2d0c8744ac7c",
+              "name": "email_subject",
+              "value": "=Напомняне: Искане за фактури — {{ $now.format('MMMM yyyy') }}",
+              "type": "string"
+            },
+            {
+              "id": "ecfa556b-8089-4c7e-8890-4a135302cff8",
+              "name": "email_body",
+              "value": "=Здравейте,\n\nНапомняме Ви за предишния ни имейл относно фактурите за месец {{ $now.format('MMMM yyyy') }}. Все още не сме получили документи от Вас.\n\nМоля, изпратете ги при първа възможност, за да можем да обработим счетоводството Ви за месеца навреме.\n\nАко вече сте ги изпратили, моля игнорирайте този имейл.\n\nС уважение,\nЕкипът на MV Accounting",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1232,
+        912
+      ],
+      "id": "57aa8550-c8af-49d2-83e2-c9e90ecca1a8",
+      "name": "BG REMINDER"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d7c46251-5a71-4f2e-8693-2d0c8744ac7c",
+              "name": "email_subject",
+              "value": "=Reminder: Invoice request — {{ $now.format('MMMM yyyy') }}",
+              "type": "string"
+            },
+            {
+              "id": "ecfa556b-8089-4c7e-8890-4a135302cff8",
+              "name": "email_body",
+              "value": "=Hello,\n\nThis is a reminder regarding our previous email about {{ $('loop').item.json.company_name }}'s invoices for {{ $now.format('MMMM yyyy') }}. We haven't received them yet.\n\nPlease send them over as soon as possible so we can process this month's accounting on time.\n\nIf you've already sent them, please ignore this message.\n\nBest regards,\nMV Accounting",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1232,
+        1120
+      ],
+      "id": "83b78bb7-5fe4-4576-9cc4-622bccabab61",
+      "name": "EN REMINDER"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1456,
+        976
+      ],
+      "id": "6faa9fe3-7f73-484b-a944-65cf06d35afb",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        976
+      ],
+      "id": "cce6c270-e03f-4383-b89b-703d8d3f47be",
+      "name": "Create a draft",
+      "webhookId": "db9ab984-30cb-488e-a701-bb8c3656e987",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JmysJgsS4CqFvkoE",
+          "name": "Gmail OAuth2 API"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4",
+          "mode": "list",
+          "cachedResultName": "MV_Clients_DEV",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 988572914,
+          "mode": "list",
+          "cachedResultName": "send_log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit#gid=988572914"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "client_id"
+          ],
+          "schema": [
+            {
+              "id": "run_id",
+              "displayName": "run_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "client_id",
+              "displayName": "client_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "initial_draft_created_at",
+              "displayName": "initial_draft_created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "initial_sent_at",
+              "displayName": "initial_sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reply_received",
+              "displayName": "reply_received",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "reminder_draft_created_at",
+              "displayName": "reminder_draft_created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1872,
+        1120
+      ],
+      "id": "349d64c0-cd3f-4465-ac9f-e9714edb8a15",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bSP4QfRd1cjBLhCa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4",
+          "mode": "list",
+          "cachedResultName": "MV_Clients_DEV",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 988572914,
+          "mode": "list",
+          "cachedResultName": "send_log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VEaOn-b2rDKAJMhu-V3bj9ykEgB3bbOG3GBGiutmvu4/edit#gid=988572914"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "run_id",
+              "lookupValue": "={{ $now.format('yyyy-MM') }}-initial"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        448
+      ],
+      "id": "5f0dcbc5-e39e-48fd-97e8-c1f4604ea60b",
+      "name": "Read send_log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bSP4QfRd1cjBLhCa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json);\n\nconst replied = rows.filter(r => r.status === 'completed_client_replied').length;\nconst reminders = rows.filter(r => r.status === 'reminder_draft_created').length;\nconst untouched = rows.filter(r => r.status === 'initial_draft_created').length;\n\nreturn [{\n  json: {\n    total: rows.length,\n    replied: replied,\n    reminders: reminders,\n    untouched: untouched,\n    run_id: rows[0] ? rows[0].run_id : 'unknown'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        432
+      ],
+      "id": "08ec06d0-0c6a-4282-b5ad-d28aa81b84a7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "ivanhristovgr@gmail.com",
+        "subject": "=[MV Automation] Reminder run complete — {{ $now.format('MMMM yyyy') }}",
+        "message": "=Reminder run complete for {{ $json.run_id }}.  Total clients in run: {{ $json.total }} Already replied (no action needed): {{ $json.replied }} Reminder drafts created: {{ $json.reminders }} Uncategorized (please check): {{ $json.untouched }}  Please review reminder drafts in Gmail before sending.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        432
+      ],
+      "id": "708528f3-26f8-42de-b05c-f6e12a1d7370",
+      "name": "send summary",
+      "webhookId": "da6ee592-8d20-4cc9-a6cf-0b24d3614985",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "JmysJgsS4CqFvkoE",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 1 * *"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d0497dde-d78f-405e-9817-aecb5ea766db",
+      "name": "Trigger: Monthly invoice request"
+    }
+  ],
+  "pinData": {
+    "Read clients": [
+      {
+        "json": {
+          "row_number": 2,
+          "client_id": 9001,
+          "company_name": "Алфа Консулт ООД",
+          "contact_name": "Иван Петров",
+          "email": "mvtest+9001@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 3,
+          "client_id": 9002,
+          "company_name": "Бета Трейд ЕООД",
+          "contact_name": "Мария Георгиева",
+          "email": "mvtest+9002@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 4,
+          "client_id": 9003,
+          "company_name": "Gamma Tech Ltd",
+          "contact_name": "John Anderson",
+          "email": "mvtest+9003@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": "UK parent company"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 5,
+          "client_id": 9004,
+          "company_name": "Делта Строй ООД",
+          "contact_name": "Стефан Димитров",
+          "email": "mvtest+9004@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_pikod",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 6,
+          "client_id": 9005,
+          "company_name": "Петров Фрийлансър",
+          "contact_name": "Николай Петров",
+          "email": "mvtest+9005@gmail.com",
+          "language": "BG",
+          "entity_type": "individual",
+          "vat_registered": false,
+          "social_sec_category": "self_paid_by_us",
+          "has_employees": false,
+          "active": true,
+          "notes": "Self-employed, we handle payments"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 7,
+          "client_id": 9006,
+          "company_name": "Epsilon Digital EOOD",
+          "contact_name": "Elena Kostova",
+          "email": "mvtest+9006@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 8,
+          "client_id": 9007,
+          "company_name": "Зета Логистик ООД",
+          "contact_name": "Пламен Василев",
+          "email": "mvtest+9007@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 9,
+          "client_id": 9008,
+          "company_name": "Ета Фуудс ЕООД",
+          "contact_name": "Радка Иванова",
+          "email": "mvtest+9008@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 10,
+          "client_id": 9009,
+          "company_name": "Theta Marketing Ltd",
+          "contact_name": "Sarah Thompson",
+          "email": "mvtest+9009@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": false,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": "Under VAT threshold"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 11,
+          "client_id": 9010,
+          "company_name": "Йота Инженеринг ООД",
+          "contact_name": "Георги Стоянов",
+          "email": "mvtest+9010@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 12,
+          "client_id": 9011,
+          "company_name": "Капа Сервиз ЕООД",
+          "contact_name": "Виктор Николов",
+          "email": "mvtest+9011@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 13,
+          "client_id": 9012,
+          "company_name": "Ламбда Дизайн",
+          "contact_name": "Силвия Тодорова",
+          "email": "mvtest+9012@gmail.com",
+          "language": "BG",
+          "entity_type": "individual",
+          "vat_registered": false,
+          "social_sec_category": "self_paid_by_us",
+          "has_employees": false,
+          "active": true,
+          "notes": "Freelance designer"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 14,
+          "client_id": 9013,
+          "company_name": "Mu Software Solutions",
+          "contact_name": "David Wright",
+          "email": "mvtest+9013@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": "Software dev, 4 employees"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 15,
+          "client_id": 9014,
+          "company_name": "Ню Пропъртис ООД",
+          "contact_name": "Анелия Маринова",
+          "email": "mvtest+9014@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 16,
+          "client_id": 9015,
+          "company_name": "Кси Транспорт ЕООД",
+          "contact_name": "Емил Христов",
+          "email": "mvtest+9015@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_pikod",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 17,
+          "client_id": 9016,
+          "company_name": "Omicron Trading Ltd",
+          "contact_name": "Michael Brown",
+          "email": "mvtest+9016@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 18,
+          "client_id": 9017,
+          "company_name": "Пи Архитектура ООД",
+          "contact_name": "Деян Колев",
+          "email": "mvtest+9017@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 19,
+          "client_id": 9018,
+          "company_name": "Ро Ритейл ЕООД",
+          "contact_name": "Цветелина Борисова",
+          "email": "mvtest+9018@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 20,
+          "client_id": 9019,
+          "company_name": "Сигма Финанс ООД",
+          "contact_name": "Борислав Димов",
+          "email": "mvtest+9019@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 21,
+          "client_id": 9020,
+          "company_name": "Тау Медия ЕООД",
+          "contact_name": "Кристина Атанасова",
+          "email": "mvtest+9020@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": false,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": "Newly registered"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 22,
+          "client_id": 9021,
+          "company_name": "Upsilon Ventures Ltd",
+          "contact_name": "Rachel Green",
+          "email": "mvtest+9021@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 23,
+          "client_id": 9022,
+          "company_name": "Фи Продукшън ООД",
+          "contact_name": "Александър Попов",
+          "email": "mvtest+9022@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 24,
+          "client_id": 9023,
+          "company_name": "Хи Хотелс ЕООД",
+          "contact_name": "Иванка Стефанова",
+          "email": "mvtest+9023@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_pikod",
+          "has_employees": true,
+          "active": true,
+          "notes": "Seasonal business"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 25,
+          "client_id": 9024,
+          "company_name": "Пси Медикъл ООД",
+          "contact_name": "Д-р Петя Ангелова",
+          "email": "mvtest+9024@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 26,
+          "client_id": 9025,
+          "company_name": "Omega Consulting Ltd",
+          "contact_name": "James Wilson",
+          "email": "mvtest+9025@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 27,
+          "client_id": 9026,
+          "company_name": "Стари Клиент ЕООД",
+          "contact_name": "—",
+          "email": "mvtest+9026@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "none",
+          "has_employees": false,
+          "active": false,
+          "notes": "Inactive since 2025"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 28,
+          "client_id": 9027,
+          "company_name": "Приключила Фирма ООД",
+          "contact_name": "—",
+          "email": "mvtest+9027@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "none",
+          "has_employees": false,
+          "active": false,
+          "notes": "In liquidation"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 29,
+          "client_id": 9028,
+          "company_name": "Димитрова Счетоводство",
+          "contact_name": "Валентина Димитрова",
+          "email": "mvtest+9028@gmail.com",
+          "language": "BG",
+          "entity_type": "individual",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 30,
+          "client_id": 9029,
+          "company_name": "Зорница Енерджи ООД",
+          "contact_name": "Атанас Стоев",
+          "email": "mvtest+9029@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 31,
+          "client_id": 9030,
+          "company_name": "Nova Biotech Ltd",
+          "contact_name": "Dr. Anna Petrova",
+          "email": "mvtest+9030@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": "R&D company"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Filter": [
+      {
+        "json": {
+          "row_number": 2,
+          "client_id": 9001,
+          "company_name": "Алфа Консулт ООД",
+          "contact_name": "Иван Петров",
+          "email": "mvtest+9001@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "row_number": 3,
+          "client_id": 9002,
+          "company_name": "Бета Трейд ЕООД",
+          "contact_name": "Мария Георгиева",
+          "email": "mvtest+9002@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "row_number": 4,
+          "client_id": 9003,
+          "company_name": "Gamma Tech Ltd",
+          "contact_name": "John Anderson",
+          "email": "mvtest+9003@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": "UK parent company"
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "row_number": 5,
+          "client_id": 9004,
+          "company_name": "Делта Строй ООД",
+          "contact_name": "Стефан Димитров",
+          "email": "mvtest+9004@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_pikod",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "row_number": 6,
+          "client_id": 9005,
+          "company_name": "Петров Фрийлансър",
+          "contact_name": "Николай Петров",
+          "email": "mvtest+9005@gmail.com",
+          "language": "BG",
+          "entity_type": "individual",
+          "vat_registered": false,
+          "social_sec_category": "self_paid_by_us",
+          "has_employees": false,
+          "active": true,
+          "notes": "Self-employed, we handle payments"
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      },
+      {
+        "json": {
+          "row_number": 7,
+          "client_id": 9006,
+          "company_name": "Epsilon Digital EOOD",
+          "contact_name": "Elena Kostova",
+          "email": "mvtest+9006@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 5
+        }
+      },
+      {
+        "json": {
+          "row_number": 8,
+          "client_id": 9007,
+          "company_name": "Зета Логистик ООД",
+          "contact_name": "Пламен Василев",
+          "email": "mvtest+9007@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 6
+        }
+      },
+      {
+        "json": {
+          "row_number": 9,
+          "client_id": 9008,
+          "company_name": "Ета Фуудс ЕООД",
+          "contact_name": "Радка Иванова",
+          "email": "mvtest+9008@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 7
+        }
+      },
+      {
+        "json": {
+          "row_number": 10,
+          "client_id": 9009,
+          "company_name": "Theta Marketing Ltd",
+          "contact_name": "Sarah Thompson",
+          "email": "mvtest+9009@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": false,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": "Under VAT threshold"
+        },
+        "pairedItem": {
+          "item": 8
+        }
+      },
+      {
+        "json": {
+          "row_number": 11,
+          "client_id": 9010,
+          "company_name": "Йота Инженеринг ООД",
+          "contact_name": "Георги Стоянов",
+          "email": "mvtest+9010@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 9
+        }
+      },
+      {
+        "json": {
+          "row_number": 12,
+          "client_id": 9011,
+          "company_name": "Капа Сервиз ЕООД",
+          "contact_name": "Виктор Николов",
+          "email": "mvtest+9011@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 10
+        }
+      },
+      {
+        "json": {
+          "row_number": 13,
+          "client_id": 9012,
+          "company_name": "Ламбда Дизайн",
+          "contact_name": "Силвия Тодорова",
+          "email": "mvtest+9012@gmail.com",
+          "language": "BG",
+          "entity_type": "individual",
+          "vat_registered": false,
+          "social_sec_category": "self_paid_by_us",
+          "has_employees": false,
+          "active": true,
+          "notes": "Freelance designer"
+        },
+        "pairedItem": {
+          "item": 11
+        }
+      },
+      {
+        "json": {
+          "row_number": 14,
+          "client_id": 9013,
+          "company_name": "Mu Software Solutions",
+          "contact_name": "David Wright",
+          "email": "mvtest+9013@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": "Software dev, 4 employees"
+        },
+        "pairedItem": {
+          "item": 12
+        }
+      },
+      {
+        "json": {
+          "row_number": 15,
+          "client_id": 9014,
+          "company_name": "Ню Пропъртис ООД",
+          "contact_name": "Анелия Маринова",
+          "email": "mvtest+9014@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 13
+        }
+      },
+      {
+        "json": {
+          "row_number": 16,
+          "client_id": 9015,
+          "company_name": "Кси Транспорт ЕООД",
+          "contact_name": "Емил Христов",
+          "email": "mvtest+9015@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_pikod",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 14
+        }
+      },
+      {
+        "json": {
+          "row_number": 17,
+          "client_id": 9016,
+          "company_name": "Omicron Trading Ltd",
+          "contact_name": "Michael Brown",
+          "email": "mvtest+9016@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 15
+        }
+      },
+      {
+        "json": {
+          "row_number": 18,
+          "client_id": 9017,
+          "company_name": "Пи Архитектура ООД",
+          "contact_name": "Деян Колев",
+          "email": "mvtest+9017@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 16
+        }
+      },
+      {
+        "json": {
+          "row_number": 19,
+          "client_id": 9018,
+          "company_name": "Ро Ритейл ЕООД",
+          "contact_name": "Цветелина Борисова",
+          "email": "mvtest+9018@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 17
+        }
+      },
+      {
+        "json": {
+          "row_number": 20,
+          "client_id": 9019,
+          "company_name": "Сигма Финанс ООД",
+          "contact_name": "Борислав Димов",
+          "email": "mvtest+9019@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 18
+        }
+      },
+      {
+        "json": {
+          "row_number": 21,
+          "client_id": 9020,
+          "company_name": "Тау Медия ЕООД",
+          "contact_name": "Кристина Атанасова",
+          "email": "mvtest+9020@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": false,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": "Newly registered"
+        },
+        "pairedItem": {
+          "item": 19
+        }
+      },
+      {
+        "json": {
+          "row_number": 22,
+          "client_id": 9021,
+          "company_name": "Upsilon Ventures Ltd",
+          "contact_name": "Rachel Green",
+          "email": "mvtest+9021@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 20
+        }
+      },
+      {
+        "json": {
+          "row_number": 23,
+          "client_id": 9022,
+          "company_name": "Фи Продукшън ООД",
+          "contact_name": "Александър Попов",
+          "email": "mvtest+9022@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 21
+        }
+      },
+      {
+        "json": {
+          "row_number": 24,
+          "client_id": 9023,
+          "company_name": "Хи Хотелс ЕООД",
+          "contact_name": "Иванка Стефанова",
+          "email": "mvtest+9023@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_pikod",
+          "has_employees": true,
+          "active": true,
+          "notes": "Seasonal business"
+        },
+        "pairedItem": {
+          "item": 22
+        }
+      },
+      {
+        "json": {
+          "row_number": 25,
+          "client_id": 9024,
+          "company_name": "Пси Медикъл ООД",
+          "contact_name": "Д-р Петя Ангелова",
+          "email": "mvtest+9024@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 23
+        }
+      },
+      {
+        "json": {
+          "row_number": 26,
+          "client_id": 9025,
+          "company_name": "Omega Consulting Ltd",
+          "contact_name": "James Wilson",
+          "email": "mvtest+9025@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "self_bank",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 24
+        }
+      },
+      {
+        "json": {
+          "row_number": 29,
+          "client_id": 9028,
+          "company_name": "Димитрова Счетоводство",
+          "contact_name": "Валентина Димитрова",
+          "email": "mvtest+9028@gmail.com",
+          "language": "BG",
+          "entity_type": "individual",
+          "vat_registered": true,
+          "social_sec_category": "self_pikod",
+          "has_employees": false,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 27
+        }
+      },
+      {
+        "json": {
+          "row_number": 30,
+          "client_id": 9029,
+          "company_name": "Зорница Енерджи ООД",
+          "contact_name": "Атанас Стоев",
+          "email": "mvtest+9029@gmail.com",
+          "language": "BG",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": ""
+        },
+        "pairedItem": {
+          "item": 28
+        }
+      },
+      {
+        "json": {
+          "row_number": 31,
+          "client_id": 9030,
+          "company_name": "Nova Biotech Ltd",
+          "contact_name": "Dr. Anna Petrova",
+          "email": "mvtest+9030@gmail.com",
+          "language": "EN",
+          "entity_type": "legal",
+          "vat_registered": true,
+          "social_sec_category": "employees_bank",
+          "has_employees": true,
+          "active": true,
+          "notes": "R&D company"
+        },
+        "pairedItem": {
+          "item": 29
+        }
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 5
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 6
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 7
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 8
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 9
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 10
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 11
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 12
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 13
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 14
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 15
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 16
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 17
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 18
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 19
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 20
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 21
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 22
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 23
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 24
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 25
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 26
+        }
+      },
+      {
+        "json": {
+          "true": "2026-04-initial"
+        },
+        "pairedItem": {
+          "item": 27
+        }
+      }
+    ],
+    "Send a message": [
+      {
+        "json": {
+          "id": "19dbfa119ccf5154",
+          "threadId": "19dbfa119ccf5154",
+          "labelIds": [
+            "SENT"
+          ]
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Append row in sheet": [
+      {
+        "json": {
+          "run_id": "2026-04-initial",
+          "client_id": 9011,
+          "company_name": "Капа Сервиз ЕООД",
+          "email": "mvtest+9011@gmail.com",
+          "language": "BG",
+          "initial_draft_created_at": "2026-04-24T16:18:18.671+03:00",
+          "reply_received": "false",
+          "status": "initial_draft_created"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Trigger: Monthly invoice request": [
+      {
+        "json": {
+          "timestamp": "2026-04-24T16:01:39.081+03:00",
+          "Readable date": "April 24th 2026, 4:01:39 pm",
+          "Readable time": "4:01:39 pm",
+          "Day of week": "Friday",
+          "Year": "2026",
+          "Month": "April",
+          "Day of month": "24",
+          "Hour": "16",
+          "Minute": "01",
+          "Second": "39",
+          "Timezone": "Europe/Sofia (UTC+03:00)"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Read clients": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "language path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EN": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "BG": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "language path": {
+      "main": [
+        [
+          {
+            "node": "BG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "09:00 on the 7th of every month": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "loop": {
+      "main": [
+        [
+          {
+            "node": "Read send_log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check reply": {
+      "main": [
+        [
+          {
+            "node": "Did they reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did they reply?": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "BG REMINDER",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "EN REMINDER",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BG REMINDER": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "EN REMINDER": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Did they reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Read send_log": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "send summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger: Monthly invoice request": {
+      "main": [
+        [
+          {
+            "node": "Read clients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5dbade58-eb17-4c82-9d90-9a78dee93aed",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bf95228f16489c0f21d775bd397365f3d91b5eda5adf21b59600e4b44b205f16"
+  },
+  "id": "bn5bb2ktpDJM94Cq",
+  "tags": []
+}

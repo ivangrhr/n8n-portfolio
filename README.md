@@ -9,6 +9,11 @@ End-to-end meeting processing pipeline. Form receives a transcript, AI extracts 
 
 **Tech:** Form Trigger, OpenAI, Split Out / Aggregate (fan-out pattern), Notion, Gmail
 
+### [Invoice request + reminders](./invoice-request-reminder)
+Monthly client invoice collection for an accounting practice: bilingual request emails (BG/EN), Google Sheets send log, scheduled reminder branch with inbox reply detection, and operator email summaries.
+
+**Tech:** Schedule Trigger, Google Sheets, Gmail, Switch, Split In Batches, Aggregate, Code
+
 ---
 
 ## About Me
